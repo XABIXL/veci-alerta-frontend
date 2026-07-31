@@ -37,8 +37,8 @@
         <!-- Formulario de Acceso -->
         <div class="w-full px-4 space-y-4">
             <div>
-                <label class="block text-white text-base font-medium mb-1">Usuario:</label>
-                <input type="text" id="login-usuario" class="w-full bg-transparent border-b border-white/60 text-white pb-1 focus:outline-none focus:border-white">
+                <label class="block text-white text-base font-medium mb-1">Correo electrónico:</label>
+                <input type="email" id="login-correo" class="w-full bg-transparent border-b border-white/60 text-white pb-1 focus:outline-none focus:border-white">
             </div>
 
             <div>
@@ -76,7 +76,7 @@
             </div>
         </div>
 
-        <!-- Formulario de Registro con selección de Rol -->
+        <!-- Formulario de Registro adaptado a las columnas exactas de la BD -->
         <div class="w-full px-4 space-y-3">
             <div>
                 <label class="block text-white text-sm font-medium">Nombre:</label>
@@ -84,8 +84,13 @@
             </div>
 
             <div>
-                <label class="block text-white text-sm font-medium">Usuario:</label>
-                <input type="text" id="reg-usuario" class="w-full bg-transparent border-b border-white/60 text-white pb-0.5 focus:outline-none focus:border-white">
+                <label class="block text-white text-sm font-medium">Apellido:</label>
+                <input type="text" id="reg-apellido" class="w-full bg-transparent border-b border-white/60 text-white pb-0.5 focus:outline-none focus:border-white">
+            </div>
+
+            <div>
+                <label class="block text-white text-sm font-medium">Correo:</label>
+                <input type="email" id="reg-correo" class="w-full bg-transparent border-b border-white/60 text-white pb-0.5 focus:outline-none focus:border-white">
             </div>
 
             <div>
@@ -99,14 +104,13 @@
             </div>
 
             <div>
-                <label class="block text-white text-sm font-medium">Dirección:</label>
-                <input type="text" id="reg-direccion" class="w-full bg-transparent border-b border-white/60 text-white pb-0.5 focus:outline-none focus:border-white">
+                <label class="block text-white text-sm font-medium">Calle y Lote:</label>
+                <input type="text" id="reg-calle" class="w-full bg-transparent border-b border-white/60 text-white pb-0.5 focus:outline-none focus:border-white">
             </div>
 
-            <!-- Nuevo campo para elegir el Rol -->
             <div>
-                <label class="block text-white text-sm font-medium">Rol (ID):</label>
-                <select id="reg-rol" class="w-full bg-purple-900/60 border-b border-white/60 text-white py-1 px-2 rounded focus:outline-none focus:border-white">
+                <label class="block text-white text-sm font-medium">Rol:</label>
+                <select id="reg-rol" class="w-full bg-purple-900/80 border-b border-white/60 text-white py-1 px-2 rounded focus:outline-none focus:border-white">
                     <option value="1" class="bg-purple-900 text-white">1 - Vecino</option>
                     <option value="2" class="bg-purple-900 text-white">2 - Administrador</option>
                 </select>
@@ -128,7 +132,7 @@
     <script>
         const API_BASE = "https://veci-alerta-api-1.onrender.com/api";
 
-        // Función para alternar entre las vistas
+        // Función para alternar vistas
         function cambiarVista(vista, event) {
             if (event) event.preventDefault();
             
@@ -144,27 +148,27 @@
             }
         }
 
-        // Función de acceso (Login)
         function realizarAcceso() {
-            const user = document.getElementById('login-usuario').value;
-            if(!user) {
-                alert("Por favor ingresa tu usuario");
+            const correo = document.getElementById('login-correo').value;
+            if(!correo) {
+                alert("Por favor ingresa tu correo");
                 return;
             }
-            alert("Iniciando sesión para: " + user);
+            alert("Iniciando sesión para: " + correo);
         }
 
-        // Función para registrar el usuario incluyendo el rol seleccionado
+        // Función de registro enviando los nombres de campos exactos de tu base de datos SQL
         async function registrarUsuario() {
             const nombre = document.getElementById('reg-nombre').value;
-            const usuario = document.getElementById('reg-usuario').value;
-            const password = document.getElementById('reg-password').value;
+            const apellido = document.getElementById('reg-apellido').value;
+            const correo = document.getElementById('reg-correo').value;
+            const contrasena = document.getElementById('reg-password').value;
             const telefono = document.getElementById('reg-telefono').value;
-            const direccion = document.getElementById('reg-direccion').value;
-            const rolSeleccionado = parseInt(document.getElementById('reg-rol').value);
+            const calle_lote = document.getElementById('reg-calle').value;
+            const id_rol = parseInt(document.getElementById('reg-rol').value);
 
-            if(!nombre || !usuario || !password) {
-                alert("Por favor completa al menos Nombre, Usuario y Contraseña.");
+            if(!nombre || !apellido || !correo || !contrasena || !telefono || !calle_lote) {
+                alert("Por favor completa todos los campos obligatorios.");
                 return;
             }
 
@@ -175,13 +179,13 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
+                        id_rol: id_rol,
                         nombre: nombre,
-                        usuario: usuario,
-                        password: password,
+                        apellido: apellido,
                         telefono: telefono,
-                        direccion: direccion,
-                        id_rol: rolSeleccionado,
-                        rol: rolSeleccionado
+                        correo: correo,
+                        contrasena: contrasena,
+                        calle_lote: calle_lote
                     })
                 });
 
@@ -190,7 +194,7 @@
                     cambiarVista('login');
                 } else {
                     const errorData = await respuesta.json();
-                    alert("Error al registrar: " + (errorData.error || "Datos incompletos"));
+                    alert("Error al registrar: " + (errorData.error || "Datos incorrectos"));
                 }
             } catch (error) {
                 console.error("Error de red:", error);
